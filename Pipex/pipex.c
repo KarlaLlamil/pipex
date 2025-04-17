@@ -6,7 +6,7 @@
 /*   By: karlarod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/08 16:34:33 by karlarod          #+#    #+#             */
-/*   Updated: 2025/04/11 16:54:37 by karlarod         ###   ########.fr       */
+/*   Updated: 2025/04/17 08:57:25 by karlarod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,56 +18,37 @@
 //primer intento sera con un simple split
 //segundo sera cambiar espacios por '/0' y crear punteros a cada string
 //verificar pruebas borrando PATH
-
-void	parse_paths(char	**environ, t_paths *paths)
+/*
+char	*parse_comand(int side, char *command)
 {
-	int			i;
-	int			num_paths;
-	char		*copy_path;
-	bool		word;
-	int			len;
-
+	int				num_of_args;
+	int				i;
+	t_parse_quotes	parse_args;		
+//	char		*arg_left[] = {"/usr/bin/grep",  "aa", argv[1], NULL};
+//	char		*args_right[] = {"/usr/bin/grep",  "bb", NULL};
+	
 	i = 0;
-	word = false;
-	max_len == 0;
-	while (environ[i] != NULL)
+	parse_args = (t_parse_quotes){}; 
+	if (side == 'r')
+		num_of_args = 3;
+	else
+		num_of_args = 4;
+	while ( command[i] != '\0')
 	{
-		if (ft_strncmp(environ[i], "PATH", 4) == 0)
-			copy_path = ft_strdup(environ[i]);
-		++i;
+	
 	}
-	i = 0;
-	while (copy_path[i] != '\0')
-	{
-		if (copy_path[i] != ':' && word == false)
-		{
-			word == true;
-			len = 1;
-		}
-		else if (copy_path[i] != ':' && word == true)
-			++len;
-		else if (copy_path[i] == ':')
-		{
-			++num_paths;
-			if (len > paths->max_len )
-				max_len = len;
-		}
-	}
-	paths->split_paths = calloc(num_paths + 1);
-	f_split_paths(
-	paths->path_command = (char *)(malloc(max_len + 1));
 }
 
-void	exec_process(int	side)
+void	exec_process(int side, char *command)
 {
 	char		*args;
 	extern char	**environ;
-	t_paths		paths;
 
-	parse_paths(environ, paths);
-	args = parse_comand;
+	parse_paths(environ, &paths);
+	args = parse_comand(side, command);
 
 }
+
 void	right_process(int *fd, char **argv)
 {
 	pid_t	wpid2;
@@ -80,7 +61,7 @@ void	right_process(int *fd, char **argv)
 	{	
 		dup2(fd[0], STDIN_FILENO);
 		dup2(fd_out, STDOUT_FILENO);
-		exec_process("r");
+		exec_process("r", argv[3]);
 	}
 	else
 	{
@@ -117,19 +98,18 @@ void	left_process(int *fd, char **argv)
 		close(fd[0]);
 		dup2(fd[1], STDOUT_FILENO);
 		close(fd[1]);
-		execve("/usr/bin/grep", args1, environ);
+		exec_process("l", argv[2]);
 
 	}
 	else
 	{
 		
 		close(fd[1]);
-	//	child2_pid = fork();
 		right_process(fd, argv);	
 		wpid = waitpid(child1_pid, &status1, WUNTRACED);
 		
 	}
-
+*/
 //	else//This is the parent
 //	{
 		// Revisar WUNTRACED y si hay otras que revisar
@@ -150,7 +130,7 @@ void	left_process(int *fd, char **argv)
 		*/
 //		pipe(fd2
 
-}
+//}
 /*
 split_eviron()
 {
@@ -185,20 +165,33 @@ split_eviron()
 */
 void ft_pipe(char	**argv)
 {
- 	int	fd[2];
+// 	int		fd[2];
+	t_paths	paths;
+	int		i;
 
-	if (pipe(fd) < 0 )
+	i = 0;
+	paths = (t_paths){};
+	get_path(&paths);
+	while (paths.split_paths[i] != NULL)
+	{
+		ft_printf("%s\n", paths.split_paths[i]);
+		++i;
+	}
+	/*if (pipe(fd) < 0 )
 	{
 		perror("failed to open pipe");
-		exit (1);
+		exit (EXIT_FAILURE);
 	}
-	left_process(fd, argv);
+	left_process(fd, argv);*/
+	ft_printf("%s\n", argv[1]);
 }
 
 int	main(int argc, char *argv[])
 {
 	if (argc == 5)
 		ft_pipe(argv);
+	else
+		ft_printf("The program work with 4 arguments");
 	return (0);
 	
 }
