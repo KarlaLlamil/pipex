@@ -6,7 +6,7 @@
 /*   By: karlarod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/08 16:34:33 by karlarod          #+#    #+#             */
-/*   Updated: 2025/04/17 08:57:25 by karlarod         ###   ########.fr       */
+/*   Updated: 2025/04/26 22:21:53 by karlarod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "Library/ft_printf.h"
 #include "Library/libft.h"
 
+//revisar si los archivos esxiten y si puedo escirbir en el ultimo archivo
 //primera version, donde unicamente reciba 4 argumentos y los comandos junto con sus flags esten dentro de " "
 //primer intento sera con un simple split
 //segundo sera cambiar espacios por '/0' y crear punteros a cada string
@@ -163,35 +164,75 @@ split_eviron()
 
 }
 */
-void ft_pipe(char	**argv)
+void ft_pipe(int argc, char	**argv)
 {
-// 	int		fd[2];
+ //	int		fd[2];
 	t_paths	paths;
 	int		i;
+	int		j;
+	t_parse_quotes	args_cmd;
 
 	i = 0;
+	j = 0;
 	paths = (t_paths){};
+	args_cmd = (t_parse_quotes){};
 	get_path(&paths);
-	while (paths.split_paths[i] != NULL)
+	creat_args(true, &args_cmd, argv[2]);
+/*	while (paths.split_paths[i] != NULL)
 	{
 		ft_printf("%s\n", paths.split_paths[i]);
 		++i;
+	}*/
+//	while (i < argc - 1)
+//	{
+	f_split_args(true, &args_cmd, argv[1]);
+	ft_printf("Argumentos\n");
+	while (args_cmd.args[j] != NULL)
+	{
+		ft_printf("%s\n", args_cmd.args[j]);
+		++j;
 	}
-	/*if (pipe(fd) < 0 )
+	create_path_cmd(&paths, args_cmd.args[0]);
+	j = 0;
+//	ft_printf("Comd%d: %s", i, argv[i]);
+	while (paths.split_paths[j] != NULL)
+	{
+		ft_strlcpy(paths.path_comd, paths.split_paths[j], paths.max_len);
+		ft_strlcat(paths.path_comd, "/", paths.max_len);
+		ft_strlcat(paths.path_comd, args_cmd.args[0], paths.max_len);
+//		f_split_args(true, &args_cmd, argv[2]);
+		ft_printf("%d: %s\n",j, paths.path_comd);
+		++j;
+	}
+//	free(paths.path_comd);
+//	j = 0;
+//	++i;
+//	}
+//	free(paths.copy_path);
+//	free(paths.split_paths);
+	
+	ft_printf("count args%d\n", args_cmd.num_args);
+/*	if (pipe(fd) < 0 )
 	{
 		perror("failed to open pipe");
 		exit (EXIT_FAILURE);
-	}
-	left_process(fd, argv);*/
-	ft_printf("%s\n", argv[1]);
+	}*/
+//	left_process(fd, argv);
+	ft_printf("%i\n", argc);
 }
 
 int	main(int argc, char *argv[])
 {
-	if (argc == 5)
-		ft_pipe(argv);
-	else
-		ft_printf("The program work with 4 arguments");
-	return (0);
-	
+	int	i;
+
+	i = 1;
+	while (i < argc)
+	{
+		ft_printf("%d : %s\n", i, argv[i]);
+		++i;
+	}
+	ft_pipe(argc, argv);
+/*	else
+		ft_printf("The program work with 4 arguments");*/
+	return (0);	
 }
