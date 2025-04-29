@@ -6,7 +6,7 @@
 /*   By: karlarod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/08 16:34:33 by karlarod          #+#    #+#             */
-/*   Updated: 2025/04/26 22:21:53 by karlarod         ###   ########.fr       */
+/*   Updated: 2025/04/29 17:10:24 by karlarod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ char	*parse_comand(int side, char *command)
 	
 	}
 }
-
+*/
 void	exec_process(int side, char *command)
 {
 	char		*args;
@@ -80,8 +80,8 @@ void	left_process(int *fd, char **argv)
 	pid_t	wpid2;
 	int		status1;
 	int		status2;
-	char	*arg_left[] = {"/usr/bin/grep",  "aa", argv[1], NULL};
-	char	*args_right[] = {"/usr/bin/grep",  "bb", NULL};
+//	char	*arg_left[] = {"/usr/bin/grep",  "aa", argv[1], NULL};
+//	char	*args_right[] = {"/usr/bin/grep",  "bb", NULL};
 	extern char	**environ;
 
 	child1_pid = fork();
@@ -110,7 +110,8 @@ void	left_process(int *fd, char **argv)
 		wpid = waitpid(child1_pid, &status1, WUNTRACED);
 		
 	}
-*/
+}
+
 //	else//This is the parent
 //	{
 		// Revisar WUNTRACED y si hay otras que revisar
