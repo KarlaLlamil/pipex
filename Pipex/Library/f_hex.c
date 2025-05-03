@@ -35,7 +35,7 @@ static void	f_rgth(int buff, int len, unsigned long nmb, t_fmt_spcfy *format)
 		--count;
 		n = nmb % 16;
 		nmb = nmb / 16;
-		if (n >= 0 && n <= 9)
+		if (n <= 9)
 			format->args_to_str[count] = n + '0';
 		else
 			format->args_to_str[count] = (n % 10 + 'a');
@@ -73,7 +73,7 @@ static void	f_lfth(int len, unsigned long nmb, t_fmt_spcfy *format)
 		--len;
 		n = nmb % 16;
 		nmb = nmb / 16;
-		if (n >= 0 && n <= 9)
+		if (n <= 9)
 			format->args_to_str[len] = n + '0';
 		else
 			format->args_to_str[len] = (n % 10 + 'a');

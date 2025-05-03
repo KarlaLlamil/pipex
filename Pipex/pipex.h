@@ -30,7 +30,7 @@ typedef struct	s_paths
 	char	**split_paths;
 	size_t	max_len;
 	size_t	max_path_len;
-	char	*path_comd;
+//	char	*path_comd;
 }			t_paths;
 
 typedef struct	s_parse_quotes
@@ -47,7 +47,7 @@ typedef struct	s_parse_quotes
 }				t_parse_quotes;
 
 void	get_path(t_paths *paths);
-void	create_path_cmd(t_paths *paths, char	*cmd);
+char	*create_path_cmd(t_paths *paths, char	*cmd);
 void	creat_args(bool first, t_parse_quotes *args_cmd, char *cmd);
 void	f_split_args(bool first, t_parse_quotes *args_cmd, char *file);
 

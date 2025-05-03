@@ -58,10 +58,10 @@ void	*f_new_str(size_t buff, char c)
 {
 	size_t	i;
 	char	*ptr;
-	size_t	max_size_t;
+//	size_t	max_size_t;
 
 	i = 0;
-	max_size_t = (size_t) - 1;
+//	max_size_t = (size_t) - 1;
 	ptr = (char *) malloc(buff + 1);
 	if (ptr != NULL)
 	{

@@ -40,53 +40,78 @@ char	*parse_comand(int side, char *command)
 	}
 }
 */
-void	exec_process(int side, char *command)
+void	exec_process(t_paths *paths, t_parse_quotes *args_cmd)
 {
-	char		*args;
+//	char		*args;
+	char		*path_comd;
 	extern char	**environ;
+	int			j;
 
-	parse_paths(environ, &paths);
-	args = parse_comand(side, command);
-
+//	while (args_cmd.args[j] != NULL)
+//	{
+//		ft_printf("%s\n", args_cmd.args[j]);
+//		++j;
+//	}
+//	if ( side == 'l')
+	path_comd = create_path_cmd(paths, args_cmd->args[0]);
+	j = 0;
+//	ft_printf("Comd%d: %s", i, argv[i]);
+	while (paths->split_paths[j] != NULL)
+	{
+		ft_strlcpy(path_comd, paths->split_paths[j], paths->max_len);
+		ft_strlcat(path_comd, "/", paths->max_len);
+		ft_strlcat(path_comd, args_cmd->args[0], paths->max_len);
+//		f_split_args(true, &args_cmd, argv[2]);
+//		ft_printf("%d: %s\n",j, paths.path_comd);
+		execve(path_comd, args_cmd->args, environ);
+		++j;
+	}
 }
 
-void	right_process(int *fd, char **argv)
+void	right_process(int *fd, char **argv, t_paths *paths)
 {
-	pid_t	wpid2;
+//	pid_t	wpid2;
 	pid_t	child2_pid = fork();
 	int		status2;
 	int		fd_out;
+	t_parse_quotes	args_cmd;
 
 	fd_out = open(argv[4], O_WRONLY);
+	creat_args(false, &args_cmd, argv[3]);
+	f_split_args(false, &args_cmd, NULL);
 	if (child2_pid == 0)
-	{	
+	{
 		dup2(fd[0], STDIN_FILENO);
 		dup2(fd_out, STDOUT_FILENO);
-		exec_process("r", argv[3]);
+		exec_process(paths, &args_cmd);
 	}
 	else
 	{
 		close(fd[0]);
-		wpid2 = waitpid(child2_pid, &status2, WUNTRACED);
+		waitpid(child2_pid, &status2, WUNTRACED);
 		close(fd_out);
 	}
 }
 
-void	left_process(int *fd, char **argv)
+void	left_process(int *fd, char **argv, t_paths *paths)
 {
 	pid_t	child1_pid;
-	pid_t	child2_pid;
-	pid_t	wpid;
-	pid_t	wpid2;
+//	pid_t	child2_pid;
+//	pid_t	wpid;
+//	pid_t	wpid2;
 	int		status1;
-	int		status2;
+//	int		status2;
 //	char	*arg_left[] = {"/usr/bin/grep",  "aa", argv[1], NULL};
 //	char	*args_right[] = {"/usr/bin/grep",  "bb", NULL};
-	extern char	**environ;
+	extern char		**environ;
+	t_parse_quotes	args_cmd;
 
 	child1_pid = fork();
 //	f1_fd = open(argv[1], O_RDONLY);
 	//check if fork failed
+	
+	creat_args(true, &args_cmd, argv[2]);
+	f_split_args(true, &args_cmd, argv[1]);
 	if (child1_pid == -1)
 	{
 		perror("fork");
@@ -99,16 +124,14 @@ void	left_process(int *fd, char **argv)
 		close(fd[0]);
 		dup2(fd[1], STDOUT_FILENO);
 		close(fd[1]);
-		exec_process("l", argv[2]);
-
+		exec_process(paths, &args_cmd);
 	}
 	else
 	{
 		
 		close(fd[1]);
-		right_process(fd, argv);	
-		wpid = waitpid(child1_pid, &status1, WUNTRACED);
-		
+		right_process(fd, argv, paths);	
+		waitpid(child1_pid, &status1, WUNTRACED);
 	}
 }
 
@@ -165,20 +188,22 @@ split_eviron()
 
 }
 */
-void ft_pipe(int argc, char	**argv)
+void ft_pipe(char	**argv)
 {
- //	int		fd[2];
+	int		fd[2];
 	t_paths	paths;
-	int		i;
-	int		j;
-	t_parse_quotes	args_cmd;
+//	int		i;
+//	int		j;
+//	t_parse_quotes	args_cmd;
 
-	i = 0;
-	j = 0;
+//	i = 0;
+//	j = 0;
 	paths = (t_paths){};
-	args_cmd = (t_parse_quotes){};
+//	args_cmd = (t_parse_quotes){};
 	get_path(&paths);
-	creat_args(true, &args_cmd, argv[2]);
+	pipe(fd);
+	left_process(fd, argv, &paths);
+//	creat_args(true, &args_cmd, argv[2]);
 /*	while (paths.split_paths[i] != NULL)
 	{
 		ft_printf("%s\n", paths.split_paths[i]);
@@ -186,8 +211,8 @@ void ft_pipe(int argc, char	**argv)
 	}*/
 //	while (i < argc - 1)
 //	{
-	f_split_args(true, &args_cmd, argv[1]);
-	ft_printf("Argumentos\n");
+//	f_split_args(true, &args_cmd, argv[1]);
+/*	ft_printf("Argumentos\n");
 	while (args_cmd.args[j] != NULL)
 	{
 		ft_printf("%s\n", args_cmd.args[j]);
@@ -204,7 +229,7 @@ void ft_pipe(int argc, char	**argv)
 //		f_split_args(true, &args_cmd, argv[2]);
 		ft_printf("%d: %s\n",j, paths.path_comd);
 		++j;
-	}
+	}*/
 //	free(paths.path_comd);
 //	j = 0;
 //	++i;
@@ -212,28 +237,29 @@ void ft_pipe(int argc, char	**argv)
 //	free(paths.copy_path);
 //	free(paths.split_paths);
 	
-	ft_printf("count args%d\n", args_cmd.num_args);
+//	ft_printf("count args%d\n", args_cmd.num_args);
 /*	if (pipe(fd) < 0 )
 	{
 		perror("failed to open pipe");
 		exit (EXIT_FAILURE);
 	}*/
 //	left_process(fd, argv);
-	ft_printf("%i\n", argc);
+//	ft_printf("%i\n", argc);
 }
 
 int	main(int argc, char *argv[])
 {
-	int	i;
+/*	int	i;
 
 	i = 1;
 	while (i < argc)
 	{
 		ft_printf("%d : %s\n", i, argv[i]);
 		++i;
-	}
-	ft_pipe(argc, argv);
-/*	else
-		ft_printf("The program work with 4 arguments");*/
+	}*/
+	if (argc  == 5)
+		ft_pipe(argv);
+	else
+		ft_printf("The program work with 4 arguments");
 	return (0);	
 }

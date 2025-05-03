@@ -14,18 +14,21 @@
 #include "Library/ft_printf.h"
 #include "Library/libft.h"
 //cmd tiene que ser la primera palabra hasta el primer espacio o hasta cerrar comillas
-void	create_path_cmd(t_paths *paths, char *cmd)
+char	*create_path_cmd(t_paths *paths, char *cmd)
 {
+	char *path_comd;
+
 	paths->max_len = ft_strlen(cmd);
 	paths->max_len += paths->max_path_len + 2;
-	paths->path_comd = malloc(paths->max_len);
-	if (paths->path_comd == NULL)
+	path_comd = malloc(paths->max_len);
+	if (path_comd == NULL)
 	{
 		free(paths->copy_path);
 		free(paths->split_paths);
 		ft_printf("Memory allocation failed");
 		exit(EXIT_FAILURE);
 	}
+	return(path_comd);
 }
 
 static void	f_split_path(int number_paths, t_paths *paths)

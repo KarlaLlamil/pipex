@@ -68,12 +68,12 @@ static void	count_arguments(t_parse_quotes *args_cmd, char *cmd)
 
 void	creat_args(bool first, t_parse_quotes *args_cmd, char *cmd)
 {
-	int		i;
-	bool	word;
+//	int		i;
+//	bool	word;
 //	bool	field_separator;
 
-	i = 0;
-	word = false;
+//	i = 0;
+//	word = false;
 	if (first == true)
 		args_cmd->num_args = 2;
 	else
