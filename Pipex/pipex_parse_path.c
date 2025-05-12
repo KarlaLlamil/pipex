@@ -82,7 +82,7 @@ static void	count_paths(t_paths *paths)
 			first_path = true;
 		++i;
 	}
-	paths->split_paths = ft_calloc(number_paths + 1, sizeof(char*));
+	paths->split_paths = ft_calloc(number_paths + 1, sizeof(char *));
 	if (paths->split_paths == NULL)
 	{
 		free(paths->copy_path);
@@ -90,8 +90,8 @@ static void	count_paths(t_paths *paths)
 		exit(EXIT_FAILURE);
 	}
 	f_split_path(number_paths, paths);
-	ft_printf("number of paths %d\n", number_paths);
-	ft_printf("max len %d\n", paths->max_path_len); 
+//	ft_printf("number of paths %d\n", number_paths);
+//	ft_printf("max len %d\n", paths->max_path_len); 
 }
 
 void	get_path(t_paths *paths)
@@ -105,7 +105,7 @@ void	get_path(t_paths *paths)
 		if(ft_strncmp(environ[i], "PATH", 4) == 0)
 		{
 			paths->copy_path =  ft_strdup(environ[i]);
-			ft_printf("%s\n", paths->copy_path);
+//			ft_printf("%s\n", paths->copy_path);
 			if (paths->copy_path == NULL)
 			{
 				//modify printf so that can print in standard error

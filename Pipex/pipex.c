@@ -40,10 +40,9 @@ char	*parse_comand(int side, char *command)
 	}
 }
 */
-void	exec_process(t_paths *paths, t_parse_quotes *args_cmd)
+void	exec_process(t_paths *paths, t_parse_quotes *args_cmd, char *path_comd)
 {
 //	char		*args;
-	char		*path_comd;
 	extern char	**environ;
 	int			j;
 
@@ -53,7 +52,6 @@ void	exec_process(t_paths *paths, t_parse_quotes *args_cmd)
 //		++j;
 //	}
 //	if ( side == 'l')
-	path_comd = create_path_cmd(paths, args_cmd->args[0]);
 	j = 0;
 //	ft_printf("Comd%d: %s", i, argv[i]);
 	while (paths->split_paths[j] != NULL)
@@ -71,25 +69,33 @@ void	exec_process(t_paths *paths, t_parse_quotes *args_cmd)
 void	right_process(int *fd, char **argv, t_paths *paths)
 {
 //	pid_t	wpid2;
-	pid_t	child2_pid = fork();
+	pid_t	child2_pid;
 	int		status2;
 	int		fd_out;
 	t_parse_quotes	args_cmd;
+	char		*path_comd;
 
-	fd_out = open(argv[4], O_WRONLY);
+	
+	args_cmd = (t_parse_quotes){};
 	creat_args(false, &args_cmd, argv[3]);
 	f_split_args(false, &args_cmd, NULL);
+	path_comd = create_path_cmd(paths, args_cmd.args[0]);
+	fd_out = open(argv[4], O_WRONLY);	
+	child2_pid = fork();
 	if (child2_pid == 0)
 	{
 		dup2(fd[0], STDIN_FILENO);
 		dup2(fd_out, STDOUT_FILENO);
-		exec_process(paths, &args_cmd);
+		exec_process(paths, &args_cmd, path_comd);
 	}
 	else
 	{
 		close(fd[0]);
-		waitpid(child2_pid, &status2, WUNTRACED);
+		waitpid(child2_pid, &status2, 0);
 		close(fd_out);
+		free(path_comd);
+		free(args_cmd.copy_args);
+		free(args_cmd.args);
 	}
 }
 
@@ -105,13 +111,16 @@ void	left_process(int *fd, char **argv, t_paths *paths)
 //	char	*args_right[] = {"/usr/bin/grep",  "bb", NULL};
 	extern char		**environ;
 	t_parse_quotes	args_cmd;
+	char		*path_comd;
 
-	child1_pid = fork();
 //	f1_fd = open(argv[1], O_RDONLY);
 	//check if fork failed
 	
+	args_cmd = (t_parse_quotes){};
 	creat_args(true, &args_cmd, argv[2]);
 	f_split_args(true, &args_cmd, argv[1]);
+	path_comd = create_path_cmd(paths, args_cmd.args[0]);
+	child1_pid = fork();
 	if (child1_pid == -1)
 	{
 		perror("fork");
@@ -124,14 +133,17 @@ void	left_process(int *fd, char **argv, t_paths *paths)
 		close(fd[0]);
 		dup2(fd[1], STDOUT_FILENO);
 		close(fd[1]);
-		exec_process(paths, &args_cmd);
+		exec_process(paths, &args_cmd, path_comd);
 	}
 	else
 	{
 		
 		close(fd[1]);
 		right_process(fd, argv, paths);	
-		waitpid(child1_pid, &status1, WUNTRACED);
+		waitpid(child1_pid, &status1, 0);
+		free(path_comd);
+		free(args_cmd.copy_args);
+		free(args_cmd.args);
 	}
 }
 
@@ -203,6 +215,8 @@ void ft_pipe(char	**argv)
 	get_path(&paths);
 	pipe(fd);
 	left_process(fd, argv, &paths);
+	free(paths.split_paths);
+	free(paths.copy_path);
 //	creat_args(true, &args_cmd, argv[2]);
 /*	while (paths.split_paths[i] != NULL)
 	{

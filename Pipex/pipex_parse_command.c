@@ -80,8 +80,8 @@ void	creat_args(bool first, t_parse_quotes *args_cmd, char *cmd)
 		args_cmd->num_args = 1;
 	count_arguments(args_cmd, cmd);
 	args_cmd->copy_args = ft_strdup(cmd);
-	args_cmd->args = ft_calloc(args_cmd->num_args, 1);
-	args_cmd->args[(args_cmd->num_args - 1)] = NULL;
+	args_cmd->args = ft_calloc(args_cmd->num_args, sizeof(char *));
+//	args_cmd->args[(args_cmd->num_args - 1)] = NULL;
 }
 
 void	f_split_args(bool first, t_parse_quotes *args_cmd, char *file)
@@ -104,7 +104,8 @@ void	f_split_args(bool first, t_parse_quotes *args_cmd, char *file)
 		{
 			word = false;
 			args_cmd->args[j] = &args_cmd->copy_args[args_cmd->start_quote];
-			args_cmd->copy_args[i] = '\0';
+			if (args_cmd->copy_args[i] != '\0')
+				args_cmd->copy_args[i] = '\0';
 			++j;
 		}
 		else if (word == false && args_cmd->field_separator == false)
@@ -115,5 +116,9 @@ void	f_split_args(bool first, t_parse_quotes *args_cmd, char *file)
 		++i;
 	}
 	if (first)
+	{
 		args_cmd->args[j] = file;
+		++j;
+	}
+	args_cmd->args[j] = NULL;
 }
