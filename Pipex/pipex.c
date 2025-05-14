@@ -15,9 +15,6 @@
 #include "Library/libft.h"
 
 //revisar si los archivos esxiten y si puedo escirbir en el ultimo archivo
-//primera version, donde unicamente reciba 4 argumentos y los comandos junto con sus flags esten dentro de " "
-//primer intento sera con un simple split
-//segundo sera cambiar espacios por '/0' y crear punteros a cada string
 //verificar pruebas borrando PATH
 /*
 char	*parse_comand(int side, char *command)
@@ -80,6 +77,8 @@ void	right_process(int *fd, char **argv, t_paths *paths)
 	creat_args(false, &args_cmd, argv[3]);
 	f_split_args(false, &args_cmd, NULL);
 	path_comd = create_path_cmd(paths, args_cmd.args[0]);
+	//O_CREAT O_EXCL cual debo usar?
+	//A failure to open or create a file causes the redirection to fail. 
 	fd_out = open(argv[4], O_WRONLY);	
 	child2_pid = fork();
 	if (child2_pid == 0)
