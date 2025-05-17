@@ -66,24 +66,6 @@ static void	count_arguments(t_parse_quotes *args_cmd, char *cmd)
 	}
 }
 
-void	creat_args(bool first, t_parse_quotes *args_cmd, char *cmd)
-{
-//	int		i;
-//	bool	word;
-//	bool	field_separator;
-
-//	i = 0;
-//	word = false;
-	if (first == true)
-		args_cmd->num_args = 2;
-	else
-		args_cmd->num_args = 1;
-	count_arguments(args_cmd, cmd);
-	args_cmd->copy_args = ft_strdup(cmd);
-	args_cmd->args = ft_calloc(args_cmd->num_args, sizeof(char *));
-//	args_cmd->args[(args_cmd->num_args - 1)] = NULL;
-}
-
 void	f_split_args(bool first, t_parse_quotes *args_cmd, char *file)
 {
 	int		i;
@@ -122,3 +104,22 @@ void	f_split_args(bool first, t_parse_quotes *args_cmd, char *file)
 	}
 	args_cmd->args[j] = NULL;
 }
+
+void	creat_args(bool first, t_parse_quotes *args_cmd, char *cmd)
+{
+//	int		i;
+//	bool	word;
+//	bool	field_separator;
+
+//	i = 0;
+//	word = false;
+	if (first == true)
+		args_cmd->num_args = 2;
+	else
+		args_cmd->num_args = 1;
+	count_arguments(args_cmd, cmd);
+	args_cmd->copy_args = ft_strdup(cmd);
+	args_cmd->args = ft_calloc(args_cmd->num_args, sizeof(char *));
+//	args_cmd->args[(args_cmd->num_args - 1)] = NULL;
+}
+

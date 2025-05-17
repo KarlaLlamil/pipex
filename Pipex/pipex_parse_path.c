@@ -105,12 +105,12 @@ void	get_path(t_paths *paths)
 		if(ft_strncmp(environ[i], "PATH", 4) == 0)
 		{
 			paths->copy_path =  ft_strdup(environ[i]);
-//			ft_printf("%s\n", paths->copy_path);
 			if (paths->copy_path == NULL)
 			{
 				//modify printf so that can print in standard error
 				ft_printf("Memory allocation failed");
-				exit(EXIT_FAILURE);
+			//	exit(EXIT_FAILURE);
+				return ();
 			}
 			break;
 		}
