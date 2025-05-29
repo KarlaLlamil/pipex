@@ -24,31 +24,5 @@
 # include <stdlib.h>
 #include <stdbool.h>
 
-typedef struct	s_paths
-{
-	char	*copy_path;
-	char	**split_paths;
-	size_t	max_len;
-	size_t	max_path_len;
-//	char	*path_comd;
-}			t_paths;
-
-typedef struct	s_parse_quotes
-{
-	int		num_args;
-	char	*copy_args;
-	char	**args;
-	int		start_quote;
-	int		end_quote;
-	bool	dquote;
-	bool	squote;
-	bool	escape;
-	bool	field_separator;
-}				t_parse_quotes;
-
-void	get_path(t_paths *paths);
-char	*create_path_cmd(t_paths *paths, char	*cmd);
-void	creat_args(bool first, t_parse_quotes *args_cmd, char *cmd);
-void	f_split_args(bool first, t_parse_quotes *args_cmd, char *file);
 
 #endif

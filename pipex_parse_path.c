@@ -108,9 +108,8 @@ void	get_path(t_paths *paths)
 			if (paths->copy_path == NULL)
 			{
 				//modify printf so that can print in standard error
-				ft_printf("Memory allocation failed");
+				perror("strdup");
 			//	exit(EXIT_FAILURE);
-				return ();
 			}
 			break;
 		}

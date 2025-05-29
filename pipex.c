@@ -11,21 +11,20 @@
 /* ************************************************************************** */
 
 #include "pipex.h"
+#include "split_path.h"
+#include "parse_command.h"
 #include "Library/ft_printf.h"
 #include "Library/libft.h"
 
-//revisar si los archivos esxiten y si puedo escirbir en el ultimo archivo
-//verificar pruebas borrando PATH
-
-void	exec_process(t_paths *paths, t_parse_quotes *args_cmd, char *path_comd)
+void	exec_process(t_split_paths *paths, t_parse_quotes *args_cmd, char *path_comd)
 {
 	extern char	**environ;
 	int			j;
 
 	j = 0;
-	while (paths->split_paths[j] != NULL)
+	while (paths->split_split_paths[j] != NULL)
 	{
-		ft_strlcpy(path_comd, paths->split_paths[j], paths->max_len);
+		ft_strlcpy(path_comd, paths->split_split_paths[j], paths->max_len);
 		ft_strlcat(path_comd, "/", paths->max_len);
 		ft_strlcat(path_comd, args_cmd->args[0], paths->max_len);
 		execve(path_comd, args_cmd->args, environ);
@@ -33,7 +32,7 @@ void	exec_process(t_paths *paths, t_parse_quotes *args_cmd, char *path_comd)
 	}
 }
 
-int	right_process(int *fd, char **argv, t_paths *paths)
+int	right_process(int *fd, char **argv, t_split_paths *paths)
 {
 	pid_t	child2_pid;
 	int		status2;
@@ -79,7 +78,7 @@ int	right_process(int *fd, char **argv, t_paths *paths)
 	}
 }
 
-int	left_process(int *fd, char **argv, t_paths *paths)
+int	left_process(int *fd, t_command l_command, t_command r_comma)
 {
 	pid_t			child1_pid;
 	int				status1;
@@ -87,7 +86,7 @@ int	left_process(int *fd, char **argv, t_paths *paths)
 	char			*path_comd;
 	int				exit_code;
 
-	exit_code = EXIT_SUCCESS;
+	exit_code = 0;
 	args_cmd = (t_parse_quotes){};
 	creat_args(true, &args_cmd, argv[2]);
 	f_split_args(true, &args_cmd, argv[1]);
@@ -101,13 +100,13 @@ int	left_process(int *fd, char **argv, t_paths *paths)
 	}
 	//This is the child
 	else if (child1_pid == 0)
-	{//  Debo revisar close fd
+	{
 		close(fd[0]);
 		if (dup2(fd[1], STDOUT_FILENO) == -1)
 		{
-			perror("An error ocurred: ");
+			perror("dup2: ");
 			clean_args_process(&args_cmd, path_comd);
-			return (1);
+			return (-1);
 		}
 		close(fd[1]);
 		exec_process(paths, &args_cmd, path_comd);
@@ -144,28 +143,48 @@ int	left_process(int *fd, char **argv, t_paths *paths)
 			ft_printf("child stopped (signal %d)\n", WSTOPSIG(status));
 		*/
 //Revisar bien que pasaba si $PATH="" and when $PATH="/bla/bla::/bla/bla" or $PATH="/bla/bla:.:/bla/bla"
-
-int	main(int argc, char	*argv[])
+int	pipex(char **argv, t_split_path *split_path)
 {
 	int		fd[2];
-	int		exit_code;
-	t_paths	paths;
+	t_command		l_command;
+	t_command		r_command;
 	
-	paths = (t_paths){};
+	if (make_command(&l_command, true, argv) == -1)
+		return(-1);
+	if (make_command(&r_command, true, argv) == -1)
+	{
+		command_destroy(&l_command);
+		return(-1);
+	}
+	if (pipe(fd) == -1)
+	{
+		perror("pipe");
+		command_destroy(&l_command);
+		command_destroy(&r_command);
+		return(-1);
+	}
+	left_process(fd, &l_command, &r_command);
+
+
+}
+
+int	main(int argc, char	**argv)
+{
+	int		exit_code;
+	t_split_path	split_path;
+	
 	if (argc != 5)
 	{
-		ft_printf("The program work with 4 arguments");
-		return (EXIT_FAILURE);
+		ft_printf("The program works with 4 arguments");
+		return (-1);
 	}
-	if (get_path(&paths) == NULL)
-		return (EXIT_FAILURE);
-	if (pipe(fd) < 0)
+	if(split_path_make(&split_path, get_path()) == -1)
 	{
-		perror("An error ocurred: ");
-		return (EXIT_FAILURE);
+		perror("path");
+		return(-1);
 	}
-	exit_code = left_process(fd, argv, &paths);
-	free(paths.split_paths);
-	free(paths.copy_path);
-	return (exit_code);	
+	exit_code = pipex(argv, &split_path);
+	split_path_destroy(&split_path);
+	return (exit_code);
 }
+
