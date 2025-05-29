@@ -24,5 +24,14 @@
 # include <stdlib.h>
 #include <stdbool.h>
 
+typedef struct s_child
+{
+    pid_t   pid;
+    int     status;
+    int     exit_status;
+    int     fd_file;
+}   t_child;
+
+int	exec_process(t_command *command, char **paths);
 
 #endif

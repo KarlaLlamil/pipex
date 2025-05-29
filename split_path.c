@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   split_path.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: karlarod <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/29 15:32:56 by karlarod          #+#    #+#             */
+/*   Updated: 2025/05/29 15:33:07 by karlarod         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdbool.h>
 #include <stdlib.h>
 #include "libft.h"
@@ -44,17 +56,17 @@ void	split_path_destroy(t_split_path *split_path)
 	split_path->path_copy = NULL;
 }
 
-int split_path_make(t_split_path *split_path, char	*path)
+int	split_path_make(t_split_path *split_path, char	*path)
 {
 	int	count;
 
 	if (!path)
 		path = "/bin:/usr/bin";
-	split_path->path_copy =  ft_strdup(path);
+	split_path->path_copy = ft_strdup(path);
 	if (split_path->path_copy == NULL)
 		return (-1);
 	count = count_paths(path);
-	split_path->split = malloc(sizeof(char*[count + 1]));
+	split_path->split = malloc (sizeof(char*[count + 1]));
 	if (split_path->split == NULL)
 	{
 		free(split_path->path_copy);
@@ -68,9 +80,9 @@ char	*get_path(void)
 {
 	extern char	**environ;
 
-	while(*environ)
+	while (*environ)
 	{
-		if(ft_strncmp(*environ, "PATH=",  5) == 0)
+		if (ft_strncmp(*environ, "PATH=",  5) == 0)
 			return (ft_strchr(*environ, '=') + 1);
 		++*environ;
 	}

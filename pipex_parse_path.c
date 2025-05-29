@@ -90,8 +90,6 @@ static void	count_paths(t_paths *paths)
 		exit(EXIT_FAILURE);
 	}
 	f_split_path(number_paths, paths);
-//	ft_printf("number of paths %d\n", number_paths);
-//	ft_printf("max len %d\n", paths->max_path_len); 
 }
 
 void	get_path(t_paths *paths)
@@ -115,8 +113,5 @@ void	get_path(t_paths *paths)
 		}
 		++i;
 	}
-//	if (environ[i] == NULL)
-		//PATH no existe y al parecer tengo 
-	count_paths(paths);
-		
+	count_paths(paths);	
 }

@@ -8,6 +8,7 @@ typedef struct s_split_path
 {
 	char	*path_copy;
 	char	**split;
+//	int		max_path_len;
 }	t_split_path;
 
 void split_path_destroy(t_split_path *split_path);

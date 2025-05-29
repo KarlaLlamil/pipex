@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parse_command.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: karlarod <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/29 15:32:14 by karlarod          #+#    #+#             */
+/*   Updated: 2025/05/29 15:32:20 by karlarod         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdbool.h>
 #include "Library/libft.h"
 #include "parse_command.h"
@@ -32,7 +44,7 @@ int	count_command_args(t_command *command, t_parse_quotes *parser)
 	int				n_args;
 
 	i = 0;
-	n_args = 0;
+	n_args = 2;
 	*parser = (t_parse_quotes){};
 	while (command->program[i] != '\0')
 	{
@@ -49,7 +61,7 @@ int	count_command_args(t_command *command, t_parse_quotes *parser)
 	return (n_args);
 }
 
-void	parse_command_args(t_command *command, t_parse_quotes *parser, int n_args)
+void	split_command_args(t_command *command, t_parse_quotes *parser, int n_args)
 {
 	int		i;
 	int		j;
@@ -80,7 +92,7 @@ void	parse_command_args(t_command *command, t_parse_quotes *parser, int n_args)
 		}
 		++i;
 	}
-	command->args[j] = NULL;
+	command->args[j] = command->input;
 	command->args[j+1] = NULL;
 }
 
@@ -116,6 +128,6 @@ int	make_command(t_command *command, bool first, char **argv)
 		free(command->program);
 		return (-1);
 	}
-	parse_command_args(command, &parser, n_args);
+	split_command_args(command, &parser, n_args);
 	return (0);
 }

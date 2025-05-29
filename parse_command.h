@@ -24,8 +24,8 @@ typedef struct s_command
 
 int	make_command(t_command *command, bool first, char **argv);
 int	count_command_args(t_command *command, t_parse_quotes *parser);
-void	parse_command_args(t_command *command, t_parse_quotes *parser, int n_args);
-void	command_destroy(t_command *command)
+void	split_command_args(t_command *command, t_parse_quotes *parser, int n_args);
+void	command_destroy(t_command *command);
 
 
 #endif
