@@ -44,7 +44,7 @@ int	count_command_args(t_command *command, t_parse_quotes *parser)
 	int				n_args;
 
 	i = 0;
-	n_args = 2;
+	n_args = 0;
 	*parser = (t_parse_quotes){};
 	while (command->program[i] != '\0')
 	{
@@ -68,7 +68,7 @@ void	split_command_args(t_command *command, t_parse_quotes *parser, int n_args)
 
 	i = 0;
 	j = 0;
-	*parser = (t_parse_quotes){};
+	*parser = (t_parse_quotes){};			
 	while (j < n_args)
 	{
 		if (command->program[i] != '\0')
@@ -78,7 +78,7 @@ void	split_command_args(t_command *command, t_parse_quotes *parser, int n_args)
 		if (parser->field_separator == true && parser->squote == false && parser->dquote == false && parser->word == true)
 		{
 			parser->word = false;
-			if (i != 0 && command->program[i-1] == '\'' || command->program[i-1] == '\"')
+			if ((i != 0 && command->program[i-1] == '\'') || command->program[i-1] == '\"')
 				command->program[i-1] = '\0';
 			command->args[j] = &command->program[parser->start_quote];
 			if (command->program[i] != '\0')
@@ -92,16 +92,17 @@ void	split_command_args(t_command *command, t_parse_quotes *parser, int n_args)
 		}
 		++i;
 	}
-	command->args[j] = command->input;
-	command->args[j+1] = NULL;
+	command->args[j] = NULL;
 }
 
 void	command_destroy(t_command *command)
 {
 	free(command->program);
-	free(command->args);
+	free(command->args);	
+	free(command->full_path);
 	command->program = NULL;
-	command->program = NULL;
+	command->args = NULL;
+	command->full_path = NULL;
 }
 
 int	make_command(t_command *command, bool first, char **argv)
@@ -120,13 +121,13 @@ int	make_command(t_command *command, bool first, char **argv)
 		command->output = argv[4];
 	}
 	if (!command->program)
-		return (-1);
+		return (1);
 	n_args = count_command_args(command, &parser);
-	command->args = malloc(sizeof(char*[n_args + 2]));
+	command->args = malloc(sizeof(char*[n_args + 1]));
 	if (!command->args)
 	{
 		free(command->program);
-		return (-1);
+		return (1);
 	}
 	split_command_args(command, &parser, n_args);
 	return (0);

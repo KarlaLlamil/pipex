@@ -3,9 +3,9 @@ LIBFT_DIR := Library
 LIBFT := $(LIBFT_DIR)/libft.a
 
 NAME := pipex
-SRC_FILES := pipex.c pipex_parse_path.c pipex_parse_command.c
+SRC_FILES := pipex.c parse_command.c split_path.c excve_pipex.c
 OBJ_FILES := $(SRC_FILES:%.c=%.o)
-HEADERS := pipex.h $(LIBFT_DIR)/libft.h $(LIBFT_DIR)/ft_printf.h
+HEADERS := pipex.h parse_command.h split_path.h $(LIBFT_DIR)/libft.h $(LIBFT_DIR)/ft_printf.h
 
 LIBRARY_INCLUDES := $(LIBFT_DIR)
 #override CC_FLAGS += -g3 -fsanitize=address -Wall -Wextra -Werror -fPIE

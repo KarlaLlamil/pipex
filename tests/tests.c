@@ -27,7 +27,7 @@ void	test_arguments_value(t_command	*command, char **expected, int n_args)
 	t_parse_quotes	parser;
 	int				i = 0;
 
-	parse_command_args(command, &parser, n_args);
+	split_command_args(command, &parser, n_args);
 	while(command->args[i])
 	{
 		assert_strs(command->args[i], expected[i]);
@@ -38,35 +38,65 @@ void	test_arguments_value(t_command	*command, char **expected, int n_args)
 	free(command->args);
 }
 
+void test_empty_argument()
+{
+	t_command command;
+	char		**expected = (char *[]){NULL};
+
+	command.program = strdup("");
+	command.args = malloc(sizeof(char*[1]));
+	test_arguments_value(&command, expected, 0);
+
+}
+
+void test_escape_arguments()
+{
+	t_command command;
+	char		**expected =(char *[]){"echo", "hello world", NULL};
+
+	command.program = strdup("echo 'hello world'");
+	command.args = malloc(sizeof(char *[3]));
+	test_arguments_value(&command, expected, 2);
+}
+
+void test_quotes_arguments_2()
+{
+	t_command command;
+	char		**expected = (char *[]){"awk", "{print $1}",NULL};
+
+	command.program = strdup("awk '{print $1}'");
+	command.args = malloc(sizeof(char*[3]));
+	test_arguments_value(&command, expected, 2);
+}
+
 void	test_quotes_arguments()
 {
 	t_command command;
-	char		**expected = (char *[]){"s/ /_/g", NULL};
+	char		**expected = (char *[]){"sed", "s/ /_/g", NULL};
 
 	command.program = strdup("sed 's/ /_/g'");
-	command.args = malloc(sizeof(char*[2]));
+	command.args = malloc(sizeof(char*[3]));
 	test_arguments_value(&command, expected, 2);
 }
 
 void	test_several_arguments()
 {
 	t_command command;
-	char		**expected = (char *[]){"-Wall", "-O2", "-o", "output", NULL};
+	char		**expected = (char *[]){"cc", "-Wall", "-O2", "-o", "output", NULL};
 
 	command.program = strdup("cc -Wall -O2 -o output");
-	command.args = malloc(sizeof(char*[5]));
+	command.args = malloc(sizeof(char*[6]));
 	test_arguments_value(&command, expected, 5);
 }
 
 void	test_single_argument()
 {
 	t_command command;
-	char		**expected = (char *[]){"-la", NULL};
+	char		**expected = (char *[]){"ls", "-la", NULL};
 
 	command.program = strdup("ls -la");
-	command.args = malloc(sizeof(char*[2]));
+	command.args = malloc(sizeof(char*[3]));
 	test_arguments_value(&command, expected, 2);
-
 }
 
 void test_path_value(char *path, char **expected)
@@ -123,4 +153,7 @@ int main(void)
 	test_single_argument();
 	test_several_arguments();
 	test_quotes_arguments();
+	test_quotes_arguments_2();
+	test_empty_argument();
+	test_escape_arguments();
 }

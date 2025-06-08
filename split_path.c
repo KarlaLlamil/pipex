@@ -12,20 +12,28 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "libft.h"
+#include "Library/libft.h"
 #include "split_path.h"
 
-static int	count_paths(char	*path)
+static int	count_paths(t_split_path *split_path)
 {
 	int		i;
 	int		count;
+	int		len;
 
 	i = 0;
 	count = 1;
-	while (path[i] != '\0')
+	len = 0;
+	while (split_path->path_copy[i] != '\0')
 	{
-		if (path[i] == ':')
+		++len;
+		if (split_path->path_copy[i] == ':')
+		{
+			if (len > split_path->max_path_len)
+				split_path->max_path_len = len;
+			len = 0;
 			++count;
+		}
 		++i;
 	}
 	return (count);
@@ -65,7 +73,7 @@ int	split_path_make(t_split_path *split_path, char	*path)
 	split_path->path_copy = ft_strdup(path);
 	if (split_path->path_copy == NULL)
 		return (-1);
-	count = count_paths(path);
+	count = count_paths(split_path);
 	split_path->split = malloc (sizeof(char*[count + 1]));
 	if (split_path->split == NULL)
 	{
