@@ -7,10 +7,8 @@
  typedef struct	s_parse_quotes
 {
 	int		start_quote;
-	int		end_quote;
 	bool	dquote;
 	bool	squote;
-	bool	escape;
 	bool	field_separator;
 	bool	word;
 }	t_parse_quotes;

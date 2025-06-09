@@ -17,71 +17,62 @@
 #include "Library/libft.h"
 #include <stdio.h>
 
-void	right_process(t_child *child, int *fd, t_command *command, t_split_path *split_path)
+int	right_process(int *fd, t_command *command, t_split_path *split_path)
 {
 	close(fd[1]);
-//	printf("in right child\n");
 	if (command->args[0] == NULL)
 	{
-		child->exit_status = 127;
-		close(fd[1]);
-		exit(127);
+		write(STDERR_FILENO, "\' \'", 3);
+		write(STDERR_FILENO, ": command not found\n", 20);
+		close(fd[0]);
+		return (127);
 	}
 	if (command->fd_file == -1)
 	{
-		perror("file: ");
-		child->exit_status = 1;
-		exit(1);
+		close(fd[0]);
+		return (1);
 	}
 	if (dup2(fd[0], STDIN_FILENO) != STDIN_FILENO)
 	{
-		perror("dup2: ");
-		child->exit_status = 1;
-		exit(1);
+		perror("dup2");
+		close(fd[0]);
+		return (1);
 	}
-	dup2(command->fd_file, STDOUT_FILENO);
-//	printf("at the end of right child");
-	child->exit_status = exec_process(command, split_path);
-	
+	if (dup2(command->fd_file, STDOUT_FILENO) != STDOUT_FILENO)
+	{
+		perror("dup2");
+		return (1);
+	}
+	return (exec_process(command, split_path));
 }
 
-void	left_process(t_child *child, int *fd, t_command *command, t_split_path *split_path)
+int	left_process(int *fd, t_command *command, t_split_path *split_path)
 {
-	child->exit_status = 0;
-	
-//	printf("inside left child\n command->args[0]%s \n file descriptor %i\n", command->args[0], command->fd_file);
 	close(fd[0]);
 	if (command->args[0] == NULL)
 	{
-		child->exit_status = 127;
+		write(STDERR_FILENO, "\' \'", 3);
+		write(STDERR_FILENO, ": command not found\n", 20);
 		close(fd[1]);
-		exit(127);
+		return (127);
 	}
 	if (command->fd_file == -1)
 	{
-		child->exit_status = 1;
 		close(fd[1]);
-		exit(1);
+		return (1);
 	}
-	dup2(fd[1], STDOUT_FILENO);
-	// {
-	// 	perror("dup2 : ");
-	// 	exit(1);
-	// }
-	dup2(command->fd_file, STDIN_FILENO);
-	//{
-	//	printf("dup2 fallo");
-	//	fflush(stdout);
-	//	perror("dup2: ");
-	//	child->exit_status = 1;
-	//	close(fd[1]);
-		//exit(1);
-	//}
-	//printf("fd[1] %i\n", fd[1]);
-	//printf("close %i", close(fd[1]));
-	//fflush(stdout);
-	child->exit_status= exec_process(command, split_path);
-	
+	if (dup2(fd[1], STDOUT_FILENO) != STDOUT_FILENO)
+	{
+		perror("dup2: ");
+		close(fd[1]);
+		return (1);
+	}
+	if (dup2(command->fd_file, STDIN_FILENO) != STDIN_FILENO)
+	{
+		perror("dup2: ");
+		return (1);
+	}
+	return (exec_process(command, split_path));	
 }
 
 int	ft_fork(int *fd, t_command *l_command, t_command *r_command, t_split_path *split_path)
@@ -89,7 +80,6 @@ int	ft_fork(int *fd, t_command *l_command, t_command *r_command, t_split_path *s
 	t_child	child_right;
 	t_child	child_left;
 
-//	printf("pipe 1 %i y 2 %i\n", fd[0], fd[1]);
 	child_left.pid = fork();
 	if (child_left.pid == -1)
 	{
@@ -101,7 +91,7 @@ int	ft_fork(int *fd, t_command *l_command, t_command *r_command, t_split_path *s
 	if (child_left.pid == 0)
 	{
 		
-		left_process(&child_left, fd, l_command, split_path);
+		child_left.exit_status = left_process(fd, l_command, split_path);
 		
 	}
 	else
@@ -117,19 +107,15 @@ int	ft_fork(int *fd, t_command *l_command, t_command *r_command, t_split_path *s
 		if (child_right.pid == 0)
 		{
 			
-			right_process(&child_right, fd, r_command, split_path);
+			child_right.exit_status = right_process(fd, r_command, split_path);
 			
 		}
 		else
 		{
-		//	printf("in parent right child\n");
 			close(fd[0]);
 			waitpid(child_right.pid, &child_right.status, 0);
 			if (WIFEXITED(child_right.status))
-			{
 				child_right.exit_status = WEXITSTATUS(child_right.status);
-				//printf("exit status right command %d\n", child_right.exit_status);
-			}
 			// else if (WIFSIGNALED(child_right.status) && child_right.exit_status != 127)
 			// {
 
@@ -169,6 +155,8 @@ int pipex(char **argv, t_split_path *split_path)
 		return (1);
 	if (prepare_args(&r_command, false, argv, split_path) == 1)
 	{
+		if(l_command.fd_file != -1)
+			close(l_command.fd_file);
 		command_destroy(&l_command);
 		return (1);
 	}
@@ -176,11 +164,9 @@ int pipex(char **argv, t_split_path *split_path)
 	{
 		perror("pipe");
 		exit_status = 1;
-		printf("pipe failed\n");
 	}
 	else  
 		exit_status = ft_fork(fd, &l_command, &r_command, split_path);
-//	printf("return from fork\n");
 	command_destroy(&l_command);
 	command_destroy(&r_command);
 	return (exit_status);
@@ -194,7 +180,7 @@ int	main(int argc, char	**argv)
 	split_path = (t_split_path){};
 	if (argc != 5)
 	{
-//		printf("The program works with 4 arguments");
+		write(STDERR_FILENO, "The program works with 4 arguments\n", 35);
 		return (1);
 	}
 	if (split_path_make(&split_path, get_path()) == -1)

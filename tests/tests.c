@@ -5,6 +5,13 @@
 #include "../parse_command.h"
 #include "../split_path.h"
 
+/*
+file1 cat "wc -w" "directory_no_permision_create/file"
+file1 cat "wc -w" "file_don't_exist"
+file1 "" "wc -w" file2
+
+*/
+
 void assert_strs(char *actual, char *expected)
 {
 	if  (strcmp(actual, expected) != 0) {

@@ -41,14 +41,14 @@ static int	count_paths(t_split_path *split_path)
 
 static void	split_path_fill(t_split_path *split_path, int n_paths)
 {
-	int i;
+	int		i;
 	char	*end;
 
 	i = 1;
 	split_path->split[0] = split_path->path_copy;
 	while (i < n_paths)
 	{
-		end = ft_strchr(split_path->split[i-1], ':');
+		end = ft_strchr(split_path->split[i - 1], ':');
 		*end = '\0';
 		split_path->split[i] = end + 1;
 		++i;
@@ -74,7 +74,7 @@ int	split_path_make(t_split_path *split_path, char	*path)
 	if (split_path->path_copy == NULL)
 		return (-1);
 	count = count_paths(split_path);
-	split_path->split = malloc (sizeof(char*[count + 1]));
+	split_path->split = malloc (sizeof (char *[count + 1]));
 	if (split_path->split == NULL)
 	{
 		free(split_path->path_copy);
@@ -87,12 +87,14 @@ int	split_path_make(t_split_path *split_path, char	*path)
 char	*get_path(void)
 {
 	extern char	**environ;
+	int			i;
 
-	while (*environ)
+	i = 0;
+	while (environ[i] != NULL)
 	{
-		if (ft_strncmp(*environ, "PATH=",  5) == 0)
-			return (ft_strchr(*environ, '=') + 1);
-		++*environ;
+		if (ft_strncmp(environ[i], "PATH=", 5) == 0)
+			return (ft_strchr(environ[i], '=') + 1);
+		++i;
 	}
 	return (NULL);
 }
