@@ -70,23 +70,35 @@ int check_file_permision(t_command *command, bool first)
 	int fd;
 	int len;
 
-	fd = open(command->input, __O_DIRECTORY);
-	if(fd > 0)
-	{
-		len = ft_strlen(command->input);
-		close(fd);
-		write(STDERR_FILENO, command->input, len);
-		write(STDERR_FILENO, ": Is a directory\n", 17);
-		return(1);
-	}
 	if (first == true)
 	{
+		fd = open(command->input, __O_DIRECTORY);
+		if(fd > 0)
+		{
+			len = ft_strlen(command->input);
+			close(fd);
+			write(STDERR_FILENO, command->input, len);
+			write(STDERR_FILENO, ": Is a directory\n", 17);
+			return(1);
+		}
 		command->fd_file = open(command->input, O_RDONLY);
 		if (command->fd_file == -1)
 			perror((const char*)command->input);
 	}
 	else if(first == false)
 	{
+		if (access(command->output, F_OK) == 0)
+		{
+			fd = open(command->output, __O_DIRECTORY);
+			if(fd > 0)
+			{
+				len = ft_strlen(command->output);
+				close(fd);
+				write(STDERR_FILENO, command->output, len);
+				write(STDERR_FILENO, ": Is a directory\n", 17);
+				return(1);
+			}
+		}
 		command->fd_file = open(command->output, O_WRONLY|O_CREAT|O_TRUNC, 0666);
 		if (command->fd_file == -1)
 			perror((const char*)command->output);

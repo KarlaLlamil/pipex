@@ -80,6 +80,8 @@ int	ft_fork(int *fd, t_command *l_command, t_command *r_command, t_split_path *s
 	t_child	child_right;
 	t_child	child_left;
 
+	child_left = (t_child){};
+	child_right = (t_child){};
 	child_left.pid = fork();
 	if (child_left.pid == -1)
 	{
