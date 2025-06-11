@@ -127,19 +127,20 @@ int	ft_fork(int *fd, t_command *l_command, t_command *r_command, t_split_path *s
 			// 	printf("left child exit abnormally");
 			if (r_command->fd_file != -1)
 				close (r_command->fd_file);
-		}
-		waitpid(child_left.pid, &child_left.status, 0);
-		if (WIFEXITED(child_left.status))
-		{
-			child_left.exit_status = WEXITSTATUS(child_left.status);
+		//}
+			waitpid(child_left.pid, &child_left.status, 0);
+			if (l_command->fd_file != -1)
+				close (l_command->fd_file);
+
+		// if (WIFEXITED(child_left.status))
+		// 	child_left.exit_status = WEXITSTATUS(child_left.status);
 			//printf("exit status left command %d\n", child_left.exit_status);
 		}
 		// else if (WIFSIGNALED(child_left.status))
 		// 	printf("Child terminated by signal %d\n", WTERMSIG(child_left.status));
 		// else
 		// 	printf("left child exit abnormally");
-		if (l_command->fd_file != -1)
-			close (l_command->fd_file);
+
 	}
 	return (child_right.exit_status);
 }

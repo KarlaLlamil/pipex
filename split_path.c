@@ -90,11 +90,13 @@ char	*get_path(void)
 	int			i;
 
 	i = 0;
+	if (environ == NULL)
+		return(NULL);
 	while (environ[i] != NULL)
 	{
 		if (ft_strncmp(environ[i], "PATH=", 5) == 0)
 			return (ft_strchr(environ[i], '=') + 1);
 		++i;
 	}
-	return (NULL);
+	return ("");
 }

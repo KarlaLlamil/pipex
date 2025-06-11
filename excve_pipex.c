@@ -20,6 +20,23 @@
 
 int handle_exec_errors(t_command *command, int len)
 {
+	if (command->program[0] == '/')
+	{
+		write(STDERR_FILENO, command->program, len);
+		write(STDERR_FILENO, ": No such file or directory\n", 28);
+		return (127);
+		// write(STDERR_FILENO, command->program, len);
+		// if (access(command->output, F_OK) != 0)
+		// {
+		// 	write(STDERR_FILENO, ": No such file or directory\n", 28);
+		// 	return (127);
+		// }
+		// else if (access(command->program, X_OK) != 0)
+		// {
+		// 	write(STDERR_FILENO, ": Permission denied\n", 21);
+		// 	return (126);
+		// }
+	}
 	if (errno == ENOENT)
 	{
 		write(STDERR_FILENO, command->program, len);
@@ -53,7 +70,10 @@ int	exec_process(t_command *command, t_split_path *split_path)
 	{
 		while (split_path->split[j] != NULL)
 		{
-			ft_strlcpy(command->full_path, split_path->split[j], len);
+			if (split_path->split[j][0] == '\0' )
+				ft_strlcpy(command->full_path, ".", len);
+			else
+				ft_strlcpy(command->full_path, split_path->split[j], len);
 			ft_strlcat(command->full_path, "/", len);
 			ft_strlcat(command->full_path, command->program, len);
 			command->args[0] = command->full_path;

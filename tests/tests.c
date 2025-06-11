@@ -12,6 +12,8 @@ file1 "" "wc -w" file2
 
 */
 
+
+
 void assert_strs(char *actual, char *expected)
 {
 	if  (strcmp(actual, expected) != 0) {
@@ -28,6 +30,8 @@ void assert_null(void *actual)
 		assert(false);
 	}
 }
+
+
 
 void	test_arguments_value(t_command	*command, char **expected, int n_args)
 {
@@ -53,6 +57,17 @@ void test_empty_argument()
 	command.program = strdup("");
 	command.args = malloc(sizeof(char*[1]));
 	test_arguments_value(&command, expected, 0);
+
+}
+
+void cut()
+{
+	t_command command;
+	char		**expected =(char *[]){"cut", "-d", " ", "-f1", NULL};
+
+	command.program = strdup("cut -d' ' -f1");
+	command.args = malloc(sizeof(char *[5]));
+	test_arguments_value(&command, expected, 4);
 
 }
 
@@ -163,4 +178,5 @@ int main(void)
 	test_quotes_arguments_2();
 	test_empty_argument();
 	test_escape_arguments();
+//	cut();
 }

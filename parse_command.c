@@ -16,7 +16,8 @@
 
 static void	parse_arguments(t_parse_quotes *parser, char cmd_i)
 {
-	if (cmd_i == ' ' || cmd_i == '\t' || cmd_i == '\n')
+	if ((cmd_i == ' ' || cmd_i == '\t' || cmd_i == '\n')
+		&& (parser->dquote == false && parser->squote == false))
 		parser->field_separator = true;
 	else
 		parser->field_separator = false;
@@ -93,6 +94,12 @@ void	split_command_args(t_command *comd, t_parse_quotes *parser, int n_args)
 			parser->word = true;
 			parser->start_quote = i;
 		}
+		else if (comd->program[i] == '\0')
+		{
+			return;
+		}
+		// if (comd->program[i] == '\0')
+		// 	break;
 		++i;
 	}
 	comd->args[j] = NULL;
@@ -133,5 +140,12 @@ int	make_command(t_command *command, bool first, char **argv)
 		return (1);
 	}
 	split_command_args(command, &parser, n_args);
+	if(parser.dquote == true || parser.squote == true)
+	{
+		free(command->args);
+		free(command->program);
+		write(STDERR_FILENO, "Syntax error in command or arguments\n", 37);
+		return (1);
+	}
 	return (0);
 }
