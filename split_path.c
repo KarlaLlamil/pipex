@@ -12,7 +12,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include "Library/libft.h"
+#include "Libft/libft.h"
 #include "split_path.h"
 
 static int	count_paths(t_split_path *split_path)
@@ -91,7 +91,7 @@ char	*get_path(void)
 
 	i = 0;
 	if (environ == NULL)
-		return(NULL);
+		return (NULL);
 	while (environ[i] != NULL)
 	{
 		if (ft_strncmp(environ[i], "PATH=", 5) == 0)

@@ -13,69 +13,23 @@
 #include "pipex.h"
 #include "split_path.h"
 #include "parse_command.h"
-#include "Library/ft_printf.h"
-#include "Library/libft.h"
+#include "Libft/ft_printf.h"
+#include "Libft/libft.h"
 #include <stdio.h>
 
-int	right_process(int *fd, t_command *command, t_split_path *split_path)
+void	wait_c(t_child *rgt, t_child *lft, t_command *r_cmd, t_command *l_cmd)
 {
-	close(fd[1]);
-	if (command->args[0] == NULL)
-	{
-		write(STDERR_FILENO, "\' \'", 3);
-		write(STDERR_FILENO, ": command not found\n", 20);
-		close(fd[0]);
-		return (127);
-	}
-	if (command->fd_file == -1)
-	{
-		close(fd[0]);
-		return (1);
-	}
-	if (dup2(fd[0], STDIN_FILENO) != STDIN_FILENO)
-	{
-		perror("dup2");
-		close(fd[0]);
-		return (1);
-	}
-	if (dup2(command->fd_file, STDOUT_FILENO) != STDOUT_FILENO)
-	{
-		perror("dup2");
-		return (1);
-	}
-	return (exec_process(command, split_path));
+	waitpid(lft->pid, &lft->status, 0);
+	if (l_cmd->fd_file != -1)
+		close (l_cmd->fd_file);
+	waitpid(rgt->pid, &rgt->status, 0);
+	if (WIFEXITED(rgt->status))
+		rgt->exit_status = WEXITSTATUS(rgt->status);
+	if (r_cmd->fd_file != -1)
+		close (r_cmd->fd_file);
 }
 
-int	left_process(int *fd, t_command *command, t_split_path *split_path)
-{
-	close(fd[0]);
-	if (command->args[0] == NULL)
-	{
-		write(STDERR_FILENO, "\' \'", 3);
-		write(STDERR_FILENO, ": command not found\n", 20);
-		close(fd[1]);
-		return (127);
-	}
-	if (command->fd_file == -1)
-	{
-		close(fd[1]);
-		return (1);
-	}
-	if (dup2(fd[1], STDOUT_FILENO) != STDOUT_FILENO)
-	{
-		perror("dup2: ");
-		close(fd[1]);
-		return (1);
-	}
-	if (dup2(command->fd_file, STDIN_FILENO) != STDIN_FILENO)
-	{
-		perror("dup2: ");
-		return (1);
-	}
-	return (exec_process(command, split_path));	
-}
-
-int	ft_fork(int *fd, t_command *l_command, t_command *r_command, t_split_path *split_path)
+int	ft_fork(int *fd, t_command *l_comd, t_command *r_comd, t_split_path *split)
 {
 	t_child	child_right;
 	t_child	child_left;
@@ -84,91 +38,47 @@ int	ft_fork(int *fd, t_command *l_command, t_command *r_command, t_split_path *s
 	child_right = (t_child){};
 	child_left.pid = fork();
 	if (child_left.pid == -1)
-	{
-		perror("fork: ");
-		close(fd[0]);
-		close(fd[1]);
-		return (1);
-	}
+		return (perror("fork: "), close(fd[0]), close(fd[1]), 1);
 	if (child_left.pid == 0)
-	{
-		
-		child_left.exit_status = left_process(fd, l_command, split_path);
-		
-	}
+		child_left.exit_status = left_process(fd, l_comd, split);
 	else
 	{
 		close(fd[1]);
 		child_right.pid = fork();
 		if (child_right.pid == -1)
-		{
-			perror("fork: ");
-			close(fd[0]);
-			return (1);
-		}
+			return (perror("fork: "), close(fd[0]), 1);
 		if (child_right.pid == 0)
-		{
-			
-			child_right.exit_status = right_process(fd, r_command, split_path);
-			
-		}
+			child_right.exit_status = right_process(fd, r_comd, split);
 		else
 		{
 			close(fd[0]);
-			waitpid(child_right.pid, &child_right.status, 0);
-			if (WIFEXITED(child_right.status))
-				child_right.exit_status = WEXITSTATUS(child_right.status);
-			// else if (WIFSIGNALED(child_right.status) && child_right.exit_status != 127)
-			// {
-
-			// 	printf("Child terminated by signal %d\n", WTERMSIG(child_right.status));
-			// }
-			// else
-			// 	printf("left child exit abnormally");
-			if (r_command->fd_file != -1)
-				close (r_command->fd_file);
-		//}
-			waitpid(child_left.pid, &child_left.status, 0);
-			if (l_command->fd_file != -1)
-				close (l_command->fd_file);
-
-		// if (WIFEXITED(child_left.status))
-		// 	child_left.exit_status = WEXITSTATUS(child_left.status);
-			//printf("exit status left command %d\n", child_left.exit_status);
+			wait_c(&child_right, &child_left, r_comd, l_comd);
 		}
-		// else if (WIFSIGNALED(child_left.status))
-		// 	printf("Child terminated by signal %d\n", WTERMSIG(child_left.status));
-		// else
-		// 	printf("left child exit abnormally");
-
 	}
 	return (child_right.exit_status);
 }
 
-int pipex(char **argv, t_split_path *split_path)
+int	pipex(char **argv, t_split_path *split_path)
 {
 	int				fd[2];
 	int				exit_status;
 	t_command		l_command;
 	t_command		r_command;
-	
+
 	l_command = (t_command){};
 	r_command = (t_command){};
-	if (prepare_args(&l_command, true, argv, split_path) == 1)
+	if (prepare_args(&l_command, true, argv, split_path->max_path_len) == 1)
 		return (1);
-	if (prepare_args(&r_command, false, argv, split_path) == 1)
+	if (prepare_args(&r_command, false, argv, split_path->max_path_len) == 1)
 	{
-		if(l_command.fd_file != -1)
+		if (l_command.fd_file != -1)
 			close(l_command.fd_file);
 		command_destroy(&l_command);
 		return (1);
 	}
 	if (pipe(fd) == -1)
-	{
-		perror("pipe");
-		exit_status = 1;
-	}
-	else  
+		return (perror("pipe"), 1);
+	else
 		exit_status = ft_fork(fd, &l_command, &r_command, split_path);
 	command_destroy(&l_command);
 	command_destroy(&r_command);

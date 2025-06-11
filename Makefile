@@ -1,9 +1,9 @@
 
-LIBFT_DIR := Library
+LIBFT_DIR := Libft
 LIBFT := $(LIBFT_DIR)/libft.a
 
 NAME := pipex
-SRC_FILES := pipex.c parse_command.c split_path.c excve_pipex.c
+SRC_FILES := pipex.c parse_command.c split_path.c commands_exec.c utils_prepare_command.c
 OBJ_FILES := $(SRC_FILES:%.c=%.o)
 HEADERS := pipex.h parse_command.h split_path.h $(LIBFT_DIR)/libft.h $(LIBFT_DIR)/ft_printf.h
 

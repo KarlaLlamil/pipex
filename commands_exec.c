@@ -14,30 +14,19 @@
 #include "pipex.h"
 #include "split_path.h"
 #include "parse_command.h"
-#include "Library/ft_printf.h"
-#include "Library/libft.h"
+#include "Libft/ft_printf.h"
+#include "Libft/libft.h"
 #include <stdio.h>
 
-int handle_exec_errors(t_command *command, int len)
+int	handle_exec_errors(t_command *command, int len)
 {
 	if (command->program[0] == '/')
 	{
 		write(STDERR_FILENO, command->program, len);
 		write(STDERR_FILENO, ": No such file or directory\n", 28);
 		return (127);
-		// write(STDERR_FILENO, command->program, len);
-		// if (access(command->output, F_OK) != 0)
-		// {
-		// 	write(STDERR_FILENO, ": No such file or directory\n", 28);
-		// 	return (127);
-		// }
-		// else if (access(command->program, X_OK) != 0)
-		// {
-		// 	write(STDERR_FILENO, ": Permission denied\n", 21);
-		// 	return (126);
-		// }
 	}
-	if (errno == ENOENT)
+	else if (errno == ENOENT)
 	{
 		write(STDERR_FILENO, command->program, len);
 		write(STDERR_FILENO, ": command not found\n", 20);
@@ -45,13 +34,13 @@ int handle_exec_errors(t_command *command, int len)
 	}
 	else if (errno == EACCES)
 	{
-		perror((const char*)command->program);
-		return (126);	
+		perror((const char *)command->program);
+		return (126);
 	}
 	else if (errno == EISDIR)
 	{
-		perror((const char*)command->program);
-		return (126);	
+		perror((const char *)command->program);
+		return (126);
 	}
 	return (1);
 }
@@ -77,79 +66,62 @@ int	exec_process(t_command *command, t_split_path *split_path)
 			ft_strlcat(command->full_path, "/", len);
 			ft_strlcat(command->full_path, command->program, len);
 			command->args[0] = command->full_path;
-			execve(command->full_path, command->args, environ);;
+			execve(command->full_path, command->args, environ);
 			++j;
 		}
 	}
 	len = len - split_path->max_path_len - 1;
-	return(handle_exec_errors(command, len));
+	return (handle_exec_errors(command, len));
 }
 
-int check_file_permision(t_command *command, bool first)
+int	right_process(int *fd, t_command *command, t_split_path *split_path)
 {
-	int fd;
-	int len;
-
-	if (first == true)
+	close(fd[1]);
+	if (command->fd_file == -1)
+		return (close(fd[0]), 1);
+	if (command->args[0] == NULL)
 	{
-		fd = open(command->input, __O_DIRECTORY);
-		if(fd > 0)
-		{
-			len = ft_strlen(command->input);
-			close(fd);
-			write(STDERR_FILENO, command->input, len);
-			write(STDERR_FILENO, ": Is a directory\n", 17);
-			return(1);
-		}
-		command->fd_file = open(command->input, O_RDONLY);
-		if (command->fd_file == -1)
-			perror((const char*)command->input);
+		write(STDERR_FILENO, "\' \'", 3);
+		write(STDERR_FILENO, ": command not found\n", 20);
+		return (close(fd[0]), close(command->fd_file), 127);
 	}
-	else if(first == false)
+	if (dup2(fd[0], STDIN_FILENO) != STDIN_FILENO)
 	{
-		if (access(command->output, F_OK) == 0)
-		{
-			fd = open(command->output, __O_DIRECTORY);
-			if(fd > 0)
-			{
-				len = ft_strlen(command->output);
-				close(fd);
-				write(STDERR_FILENO, command->output, len);
-				write(STDERR_FILENO, ": Is a directory\n", 17);
-				return(1);
-			}
-		}
-		command->fd_file = open(command->output, O_WRONLY|O_CREAT|O_TRUNC, 0666);
-		if (command->fd_file == -1)
-			perror((const char*)command->output);
+		perror("dup2");
+		return (close(fd[0]), close(command->fd_file), 1);
 	}
-
-	return(0);
-
+	if (dup2(command->fd_file, STDOUT_FILENO) != STDOUT_FILENO)
+	{
+		perror("dup2");
+		return (close(fd[0]), close(command->fd_file), 1);
+	}
+	close(fd[0]);
+	close(command->fd_file);
+	return (exec_process(command, split_path));
 }
 
-int	prepare_args(t_command *command, bool first, char **argv, t_split_path *split_path)
+int	left_process(int *fd, t_command *command, t_split_path *split_path)
 {
-	int	len;
-
-	*command = (t_command){};
-	if (make_command(command, first, argv) == 1)
-		return (1);
-
-	len = ft_strlen(command->program) + split_path->max_path_len;
-	command->full_path = malloc(len + 2);
-	if (command->full_path == NULL)
+	close(fd[0]);
+	if (command->fd_file == -1)
+		return (close(fd[1]), 1);
+	if (command->args[0] == NULL)
 	{
-		free(command->program);
-		free(command->args);
-		return (1);
+		write(STDERR_FILENO, "\' \'", 3);
+		write(STDERR_FILENO, ": command not found\n", 20);
+		return (close(fd[1]), close(command->fd_file), 127);
 	}
-	if (check_file_permision(command, first) == 1)
+	if (dup2(fd[1], STDOUT_FILENO) != STDOUT_FILENO)
 	{
-		command_destroy(command);
-		return (1);
+		perror("dup2: ");
+		return (close(fd[1]), close(command->fd_file), 1);
 	}
-	return (0);
+	if (dup2(command->fd_file, STDIN_FILENO) != STDIN_FILENO)
+	{
+		perror("dup2: ");
+		return (close(fd[1]), close(command->fd_file), 1);
+	}
+	close(fd[1]);
+	close(command->fd_file);
+	return (exec_process(command, split_path));
 }
-
-
