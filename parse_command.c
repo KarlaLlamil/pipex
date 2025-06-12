@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdbool.h>
 #include "Libft/libft.h"
 #include "parse_command.h"
 
@@ -35,7 +34,7 @@ static void	parse_arguments(t_parse_quotes *parser, char cmd_i)
 		parser->squote = false;
 }
 
-int	count_command_args(t_command *command, t_parse_quotes parser)
+static int	count_command_args(t_cmd *command, t_parse_quotes parser)
 {
 	int				i;
 	int				n_args;
@@ -64,7 +63,7 @@ int	count_command_args(t_command *command, t_parse_quotes parser)
 	return (n_args);
 }
 
-int	asign_next_arg(t_command *comd, t_parse_quotes *parser, int i, int j)
+static int	asign_next_arg(t_cmd *comd, t_parse_quotes *parser, int i, int j)
 {
 	parser->word = false;
 	if ((i != 0 && comd->program[i - 1] == '\'')
@@ -76,7 +75,7 @@ int	asign_next_arg(t_command *comd, t_parse_quotes *parser, int i, int j)
 	return (j + 1);
 }
 
-void	split_command_args(t_command *comd, t_parse_quotes parser, int n_args)
+static void	split_command_args(t_cmd *comd, t_parse_quotes parser, int n_args)
 {
 	int		i;
 	int		j;
@@ -105,7 +104,7 @@ void	split_command_args(t_command *comd, t_parse_quotes parser, int n_args)
 	comd->args[j] = NULL;
 }
 
-int	make_command(t_command *command, bool first, char **argv)
+int	make_command(t_cmd *command, bool first, char **argv)
 {
 	int				n_args;
 	t_parse_quotes	parser;

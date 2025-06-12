@@ -1,0 +1,8 @@
+file_one_line cat "sed 's/ /_/g'" outputfile
+file_list cat sort ouputfile
+file_list sort uniq outputfile
+directorio_con_permiso cat sort ouputfile
+file_list sort ./directorio_con_permiso/out
+file_one_line sort cat ./dir_for_proofs/out
+file_one_line sleep2 sleep4 outputfile
+file_list_fruits cat "cut -d ' ' -f1" outputfile

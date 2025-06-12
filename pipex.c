@@ -11,13 +11,10 @@
 /* ************************************************************************** */
 
 #include "pipex.h"
-#include "split_path.h"
 #include "parse_command.h"
-#include "Libft/ft_printf.h"
 #include "Libft/libft.h"
-#include <stdio.h>
 
-void	wait_c(t_child *rgt, t_child *lft, t_command *r_cmd, t_command *l_cmd)
+static void	wait_c(t_child *rgt, t_child *lft, t_cmd *r_cmd, t_cmd *l_cmd)
 {
 	waitpid(lft->pid, &lft->status, 0);
 	if (l_cmd->fd_file != -1)
@@ -29,7 +26,7 @@ void	wait_c(t_child *rgt, t_child *lft, t_command *r_cmd, t_command *l_cmd)
 		close (r_cmd->fd_file);
 }
 
-int	ft_fork(int *fd, t_command *l_comd, t_command *r_comd, t_split_path *split)
+static int	ft_fork(int *fd, t_cmd *l_cmd, t_cmd *r_cmd, t_split_path *split)
 {
 	t_child	child_right;
 	t_child	child_left;
@@ -40,7 +37,7 @@ int	ft_fork(int *fd, t_command *l_comd, t_command *r_comd, t_split_path *split)
 	if (child_left.pid == -1)
 		return (perror("fork: "), close(fd[0]), close(fd[1]), 1);
 	if (child_left.pid == 0)
-		child_left.exit_status = left_process(fd, l_comd, split);
+		child_left.exit_status = left_process(fd, l_cmd, split);
 	else
 	{
 		close(fd[1]);
@@ -48,25 +45,25 @@ int	ft_fork(int *fd, t_command *l_comd, t_command *r_comd, t_split_path *split)
 		if (child_right.pid == -1)
 			return (perror("fork: "), close(fd[0]), 1);
 		if (child_right.pid == 0)
-			child_right.exit_status = right_process(fd, r_comd, split);
+			child_right.exit_status = right_process(fd, r_cmd, split);
 		else
 		{
 			close(fd[0]);
-			wait_c(&child_right, &child_left, r_comd, l_comd);
+			wait_c(&child_right, &child_left, r_cmd, l_cmd);
 		}
 	}
 	return (child_right.exit_status);
 }
 
-int	pipex(char **argv, t_split_path *split_path)
+static int	pipex(char **argv, t_split_path *split_path)
 {
-	int				fd[2];
-	int				exit_status;
-	t_command		l_command;
-	t_command		r_command;
+	int			fd[2];
+	int			exit_status;
+	t_cmd		l_command;
+	t_cmd		r_command;
 
-	l_command = (t_command){};
-	r_command = (t_command){};
+	l_command = (t_cmd){};
+	r_command = (t_cmd){};
 	if (prepare_args(&l_command, true, argv, split_path->max_path_len) == 1)
 		return (1);
 	if (prepare_args(&r_command, false, argv, split_path->max_path_len) == 1)

@@ -13,9 +13,6 @@
 #ifndef SPLIT_PATH_H
 # define SPLIT_PATH_H
 
-# include <stdbool.h>
-# include <stdlib.h>
-
 typedef struct s_split_path
 {
 	char	*path_copy;

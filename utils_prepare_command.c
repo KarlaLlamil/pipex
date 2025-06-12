@@ -12,13 +12,10 @@
 
 #include <limits.h>
 #include "pipex.h"
-#include "split_path.h"
 #include "parse_command.h"
-#include "Libft/ft_printf.h"
 #include "Libft/libft.h"
-#include <stdio.h>
 
-void	command_destroy(t_command *command)
+void	command_destroy(t_cmd *command)
 {
 	free(command->program);
 	free(command->args);
@@ -28,7 +25,7 @@ void	command_destroy(t_command *command)
 	command->full_path = NULL;
 }
 
-int	check_if_regular_file(char *file)
+static int	check_if_regular_file(char *file)
 {
 	int	fd;
 	int	len;
@@ -45,7 +42,7 @@ int	check_if_regular_file(char *file)
 	return (0);
 }
 
-int	check_file_permision(t_command *comd, bool first)
+static int	check_file_permision(t_cmd *comd, bool first)
 {
 	if (first == true)
 	{
@@ -69,11 +66,11 @@ int	check_file_permision(t_command *comd, bool first)
 	return (0);
 }
 
-int	prepare_args(t_command *command, bool first, char **argv, int max_len)
+int	prepare_args(t_cmd *command, bool first, char **argv, int max_len)
 {
 	int	len;
 
-	*command = (t_command){};
+	*command = (t_cmd){};
 	if (make_command(command, first, argv) == 1)
 		return (1);
 	len = ft_strlen(command->program) + max_len;

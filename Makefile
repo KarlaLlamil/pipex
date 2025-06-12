@@ -7,10 +7,9 @@ SRC_FILES := pipex.c parse_command.c split_path.c commands_exec.c utils_prepare_
 OBJ_FILES := $(SRC_FILES:%.c=%.o)
 HEADERS := pipex.h parse_command.h split_path.h $(LIBFT_DIR)/libft.h $(LIBFT_DIR)/ft_printf.h
 
-LIBRARY_INCLUDES := $(LIBFT_DIR)
-#override CC_FLAGS += -g3 -fsanitize=address -Wall -Wextra -Werror -fPIE
-override CC_FLAGS += -g3 -Wall -Wextra -Werror -fPIE
-override CPPFLAGS += $(addprefix -I, $(LIBRARY_INCLUDES))
+LIBFT_INCLUDES := $(LIBFT_DIR)
+override C_FLAGS += -g3 -Wall -Wextra -Werror -fPIE
+override CPPFLAGS += $(addprefix -I, $(LIBFT_INCLUDES))
 
 all : $(NAME)
 
@@ -19,15 +18,17 @@ $(NAME): $(LIBFT) $(OBJ_FILES)
 	$(CC) $(OBJ_FILES) $(LIBFT) -o $@ $(CC_FLAGS)
 
 $(OBJ_FILES):%.o: %.c $(HEADERS)
-	$(CC) -c $(CPPFLAGS) $(CC_FLAGS) $< -o $@
+	$(CC) -c $(CPPFLAGS) $(C_FLAGS) $< -o $@
 
 $(LIBFT):
-	$(MAKE) -C $(LIBFT_DIR) CC_FLAGS="$(CC_FLAGS)" CPPFLAGS="$(CPPFLAGS)"
+	$(MAKE) -C $(LIBFT_DIR) C_FLAGS="$(C_FLAGS)" CPPFLAGS="$(CPPFLAGS)"
 
 clean:
+	rm -rf $(OBJ_FILES)
 	$(MAKE) clean -C $(LIBFT_DIR)
 
 fclean: clean
+	rm -rf $(NAME)
 	$(MAKE) fclean -C $(LIBFT_DIR)
 re: fclean all
 

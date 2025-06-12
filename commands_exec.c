@@ -12,13 +12,10 @@
 
 #include <limits.h>
 #include "pipex.h"
-#include "split_path.h"
 #include "parse_command.h"
-#include "Libft/ft_printf.h"
 #include "Libft/libft.h"
-#include <stdio.h>
 
-int	handle_exec_errors(t_command *command, int len)
+static int	handle_exec_errors(t_cmd *command, int len)
 {
 	if (command->program[0] == '/')
 	{
@@ -45,7 +42,7 @@ int	handle_exec_errors(t_command *command, int len)
 	return (1);
 }
 
-int	exec_process(t_command *command, t_split_path *split_path)
+static int	exec_process(t_cmd *command, t_split_path *split_path)
 {
 	extern char	**environ;
 	int			j;
@@ -74,7 +71,7 @@ int	exec_process(t_command *command, t_split_path *split_path)
 	return (handle_exec_errors(command, len));
 }
 
-int	right_process(int *fd, t_command *command, t_split_path *split_path)
+int	right_process(int *fd, t_cmd *command, t_split_path *split_path)
 {
 	close(fd[1]);
 	if (command->fd_file == -1)
@@ -100,7 +97,7 @@ int	right_process(int *fd, t_command *command, t_split_path *split_path)
 	return (exec_process(command, split_path));
 }
 
-int	left_process(int *fd, t_command *command, t_split_path *split_path)
+int	left_process(int *fd, t_cmd *command, t_split_path *split_path)
 {
 	close(fd[0]);
 	if (command->fd_file == -1)

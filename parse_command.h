@@ -33,15 +33,12 @@ typedef struct s_command
 	char	*input;
 	char	*output;
 	int		fd_file;
-}	t_command;
+}	t_cmd;
 
-int		make_command(t_command *command, bool first, char **argv);
-int		count_command_args(t_command *command, t_parse_quotes parser);
-void	split_command_args(t_command *comd, t_parse_quotes parser, int n_args);
-void	command_destroy(t_command *command);
-int		exec_process(t_command *command, t_split_path *split_path);
-int		prepare_args(t_command *command, bool first, char **argv, int max_len);
-int		right_process(int *fd, t_command *command, t_split_path *split_path);
-int		left_process(int *fd, t_command *command, t_split_path *split_path);
+int		make_command(t_cmd *command, bool first, char **argv);
+void	command_destroy(t_cmd *command);
+int		prepare_args(t_cmd *command, bool first, char **argv, int max_len);
+int		right_process(int *fd, t_cmd *command, t_split_path *split_path);
+int		left_process(int *fd, t_cmd *command, t_split_path *split_path);
 
 #endif
