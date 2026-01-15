@@ -1,7 +1,8 @@
 pipex
+
 📌 Description
 
-Pipes are one of the interprocess comunication in UNIX systems.
+Pipes are one of the interprocess communication in UNIX systems.
 
 Every time you type a sequence of commands in a pipeline for the shell to
 execute, the shell creates a separate process for each command and links the 
@@ -47,13 +48,13 @@ The program reproduces the behavior of the following shell command:
 
 ⚙️ Installation
 
-	```bash
-    git clone git@github.com:KarlaLlamil/pipex.git
-    cd minishell
-    make
-	```
-	#Usage
+```bash
+git clone git@github.com:KarlaLlamil/pipex.git
+cd minishell
+make
+```
+Usage
 
-	```bash
-    ./pipex file1 comd1 cmd2 file2
-	```
+```bash
+./pipex file1 comd1 cmd2 file2
+```
