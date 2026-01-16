@@ -50,7 +50,7 @@ The program reproduces the behavior of the following shell command:
 
 ```bash
 git clone git@github.com:KarlaLlamil/pipex.git
-cd minishell
+cd pipex
 make
 ```
 Usage
